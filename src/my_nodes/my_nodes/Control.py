@@ -18,7 +18,7 @@ class Servogroup():
     def __init__(self,servo_num:int=4) -> None:
 
         offset = np.array((775, 1155, 400, 700),dtype=int)
-        reverse = np.array((-1,-1,1,1),dtype=int)
+        reverse = np.array((-1,1,1,1),dtype=int)
 
         self.mutex = threading.Lock()
         self.servo_num =servo_num
@@ -49,23 +49,30 @@ class Mpu():
     def __init__(self,dt:int=0,orientation:np.ndarray=np.eye(3)) -> None:
         
         self.R0 = Rotation.from_matrix(orientation)
-        self.R = Rotation.from_matrix(np.eye(3))
+        self.R = None
         self.mutex = threading.Lock()
-        self.row = 0
-        self.pitch = 0
-        self.yaw = 0
+        
     def get_quat(self) -> np.ndarray:
-        with self.mutex:
-            return self.R.as_quat()
-    
+        try:
+            with self.mutex:
+                return self.R.as_quat()
+        except AttributeError:
+            print('self.R is None')
+
+    def get_euler(self,seq:str) -> np.ndarray:
+        try:
+            with self.mutex:
+                return self.R.as_euler(seq)
+        except AttributeError:
+            print('self.R is None')
+            
+
     def update_from_quat(self,quat:Iterable) -> None:
         quaternion = np.array(quat,dtype=np.float64)
         with self.mutex:
             self.R = self.R0 * Rotation.from_quat(quaternion)
             #self.get_logger().info(f'1___{str(self.get_quat())})')
         
-            
-
 
 class ControlArmNode(Node):
     def __init__(self,name):
@@ -94,7 +101,7 @@ class ControlArmNode(Node):
 
     def _thread_serial(self):
         
-        while True:
+        while rclpy.ok():
             msg = self.mav_connection.recv_match(blocking = True)
             msg_type = msg.get_type()
             if msg_type == 'BAD_DATA':
@@ -105,26 +112,33 @@ class ControlArmNode(Node):
                 self.mpu.update_from_quat((msg.q1,msg.q2,msg.q3,msg.q4))
             elif msg_type == 'COMMAND_LONG':
                 self.servos.updatePos((msg.param1,msg.param2,msg.param3,msg.param4))
-            self.get_logger().info(f'got {msg.get_type()}')
+            #self.get_logger().info(f'got {msg.get_type()}')
 
         
     def _thread_pub(self):
         
         while rclpy.ok():
+        
             # delta_time =  time.time()-last_update_time
             # last_update_time = time.time()
             self.joint_states.header.stamp = self.get_clock().now().to_msg()
-            pos = self.servos.getPos_r()
             #self.get_logger().info(f'{pos}')
-            for i in range(len(pos)):
-                self.joint_states.position[i] = pos[i]
+            for i,pos in enumerate(self.servos.getPos_r()):
+                self.joint_states.position[i] = 0
             
-            #self.get_logger().info(f'2___{str(self.mpu.get_quat())})')
-            self.tf_publisher.sendTransform(self.quat_to_TF(
-                'world', 'mpu_base', 0, 0, 0, self.mpu.get_quat()))
+            #self.get_logger().info(f"2___{self.mpu.get_euler('xyz')}")
+            
+            if (angles :=self.mpu.get_euler('xyz')) is not None:
+                self.get_logger().info(f'3___{angles}')
+                yaw,pitch,row = angles
+                
+                r  = Rotation.from_euler('xyz',(-row,pitch,0))
+                self.tf_publisher.sendTransform(self.quat_to_TF(
+                    'world', 'mpu_base', 0, 0, 0, r.as_quat()))
             
             self.joint_states_publisher_.publish(self.joint_states)
-            #self.get_logger().info('send{str(self.joint_states.position)}')
+            self.get_logger().info('send{str(self.joint_states.position)}')
+        
             self.pub_rate.sleep()
             
     def quat_to_TF(self, A: str, B: str, tx: float, ty: float, tz: float, q: list):

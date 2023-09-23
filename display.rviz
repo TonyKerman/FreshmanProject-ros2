@@ -9,7 +9,7 @@ Panels:
         - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.5
-    Tree Height: 670
+    Tree Height: 666
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
@@ -105,19 +105,21 @@ Visualization Manager:
         base_link:
           Value: true
         link1:
-          Value: false
+          Value: true
         link2:
-          Value: false
+          Value: true
         link3:
-          Value: false
+          Value: true
         link4:
-          Value: false
+          Value: true
         link5:
-          Value: false
+          Value: true
         link6:
-          Value: false
+          Value: true
+        mpu_base:
+          Value: true
         world:
-          Value: false
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
@@ -125,14 +127,15 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          base_link:
-            link1:
-              link2:
-                link3:
-                  link4:
-                    link5:
-                      link6:
-                        {}
+          mpu_base:
+            base_link:
+              link1:
+                link2:
+                  link3:
+                    link4:
+                      link5:
+                        link6:
+                          {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -150,35 +153,35 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.22647054493427277
+      Distance: 1.6917554140090942
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: -0.013442592695355415
+        Y: 0.045286886394023895
+        Z: -0.03708798065781593
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9049995541572571
+      Pitch: -0.12999983131885529
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.8300068378448486
+      Yaw: 5.883188724517822
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1555
+  Height: 1547
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002320000059ffc0200000002fb000000100044006900730070006c0061007900730100000052000003540000011e00fffffffb0000000a0056006900650077007301000003af00000242000000e000ffffff000007c50000059f00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000023200000597fc0200000002fb000000100044006900730070006c0061007900730100000052000003500000011e00fffffffb0000000a0056006900650077007301000003ab0000023e000000e000ffffff000007c50000059700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 2560
   X: 0
-  Y: 505
+  Y: 513
